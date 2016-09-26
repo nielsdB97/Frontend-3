@@ -1,3 +1,8 @@
+#weersvoorspelling {
+  box-sizing: border-box;
+  padding: 0 1rem;
+}
+
 .dag {
 	fill: lightblue;
 	stroke: black;

@@ -29,7 +29,7 @@ d3.json("cijfersDT1.json", function(error, data) {
   console.log("loaded data");
   console.table(data);
 
-  x.domain(data.map(function(d) { return d["Studienummer"]}));
+  x.domain(data.map(function(d) { return d["Studienummer"]}));  //Use d['keyname'] instead of d.keyName when keyName has spaces
   console.log(x.domain());
   y.domain([0, 10]);  //Not using D3 max because this way we can still inspire students to get a 10 ;)
 
@@ -59,7 +59,7 @@ d3.json("cijfersDT1.json", function(error, data) {
       })
       .attr("dy", ".75em")
       .text(function(d) {
-        return d.Studienummer;
+        return d.Voornaam;    //Here I can use d.keyName because the keyName doesnt contain any spaces
       });
 
   var xAxis = d3.svg.axis()
@@ -93,6 +93,7 @@ d3.json("cijfersDT1.json", function(error, data) {
 
 function type(d) {
   console.log ("coercing to number: " + d["Eerste Mondeling"]);
+  //console.log("result: " + )
   d["Eerste Mondeling"] = +d["Eerste Mondeling"]; // coerce to number
   return d;
 }

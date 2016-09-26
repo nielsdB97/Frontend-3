@@ -1,3 +1,19 @@
+body {
+	background: silver;
+	font-family: 'Helvetica-Neue', Helvetica, Arial, sans-serif;
+	font-weight: 100;
+}
+
+main {
+	background: white;
+}
+
+#glazenwater rect {
+  fill: rgb(101, 217, 249);
+  stroke: rgb(92, 217, 249);
+  color: rgb(238,77,77);
+}
+
 article {
   border-left: solid green;
   margin: .5em;
@@ -18,7 +34,7 @@ p {
 }
 /* Let op, color werkt hier niet want svg text */
 .chart .barLabels{
-	fill: white;		
+	fill: white;
 	font: 10px sans-serif;
 	text-anchor: middle;
 }

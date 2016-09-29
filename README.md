@@ -10,7 +10,7 @@ info can be found on Moodle.
 With [git][], do:
 
 ```sh
-git clone https://github.com/CMDA/Frontend-3.git
+git clone https://github.com/nielsdB97/Frontend-3.git
 ```
 
 **Or, click the big green button “Clone or download” and
@@ -18,12 +18,11 @@ install from there. Don’t forget to `cd` into the directory.**
 
 ## 1. Get Node
 
-You need [Node][] installed.
-If you haven’t already we suggest to install the LTS version.
+This project uses Node.js so you should have that installed to get started.
 
 ## 2. Dependencies
 
-Now, install dependencies with npm like so:
+Now, install dependencies with NPM like so:
 
 ```sh
 npm install
@@ -31,15 +30,23 @@ npm install
 
 ## 3. Server
 
-Finally, to start a live-reloading server, run the following:
-
+We're using [budo][] as a live-reloading server. It can be initiated by running:
 ```sh
 npm start
 ```
 
+Since we're also using data from a specific Google Sheet, it's nice to always know we have the most up-to-date version.
+To get the latest data and start the live-reloading server, run:
+
+```sh
+make start
+```
+
+You can then visit [localhost:9966][localhost].
+
 This will print out an address the server is running on.
 
-This server is made with [budo][]. <small>Tip: you can
+<small>Tip: you can
 pass budo options, such as `--open`, like so:
 `npm start -- --open`</small>
 
@@ -50,3 +57,5 @@ pass budo options, such as `--open`, like so:
 [node]: https://nodejs.org
 
 [budo]: https://github.com/mattdesl/budo
+
+[localhost]: http://localhost:9966

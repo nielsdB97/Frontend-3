@@ -106,6 +106,7 @@ function draw(err, data) {
 
   $prevWeek.addEventListener('click', (event) => {
     if (minMaxWeek(event.target.className, week) === true) {
+      tooltip.style("opacity", "0");
       week = week - 1;
       $currWeek.innerHTML = `Week ${week}`;
       update(err, data);
@@ -113,6 +114,7 @@ function draw(err, data) {
   });
   $nextWeek.addEventListener('click', () => {
     if (minMaxWeek(event.target.className, week) === true) {
+      tooltip.style("opacity", "0");
       week = week + 1;
       $currWeek.innerHTML = `Week ${week}`;
       update(err, data);

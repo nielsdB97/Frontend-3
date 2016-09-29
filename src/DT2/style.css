@@ -1,0 +1,74 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family: Helvetica, 'Open Sans', sans-serif;
+}
+
+main {
+  padding: 0 1rem 1.5rem;
+}
+
+h1 {
+  margin-bottom: 0;
+  color: #333;
+}
+
+h2 {
+  margin-top: 0;
+
+  font-family: serif;
+  font-weight: 100;
+  font-style: italic;
+  color: #717171;
+}
+
+.tooltip {
+  pointer-events: none;
+}
+
+.weekSelector {
+  width: 100%;
+  text-align: center;
+}
+.weekSelector span {
+  margin: 0 1rem;
+}
+
+
+article {
+  border-left: solid green;
+  margin: .5em;
+}
+
+.chart{
+	width:1000;
+	height: 600;
+}
+
+/*.chart rect {
+  fill: steelblue;
+}*/
+/* Let op, color werkt hier niet want svg text */
+.chart .barLabels{
+	fill: white;
+	font: 10px sans-serif;
+	text-anchor: middle;
+}
+
+.axis text {
+  font: 10px sans-serif;
+	color: black;
+  font-weight: bold;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+/*.axis .tick line {
+  display:none;
+}*/

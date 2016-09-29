@@ -1,4 +1,7 @@
 /* Created by @wooorm */
+
+'use strict';
+
 var margin = {top: 20, right: 30, bottom: 130, left: 39};
 var height = 500 - margin.top - margin.bottom;
 
@@ -51,7 +54,7 @@ function draw(err, data) {
     var bars = chart.selectAll('rect').data(subset);
 
     bars.enter().append('rect');
-    bars.exit().remove()
+    bars.exit().remove();
 
     bars
       .attr('width', x.rangeBand() - 1)

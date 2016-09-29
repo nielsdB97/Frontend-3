@@ -16,8 +16,10 @@ Datum	Dag	Week	Aantal broodjes	Aantal glazen water	Aantal koppen koffie	Blijheid
 19-9-2016	Maandag	38	4	5	0	2	503	1	Amsterdam	0	195	310	10	80	50	0	0	0
 20-9-2016	Dinsdag	38	5	4	0	3	455	4		0	123	260	35	185	95	0	0	0
 21-9-2016	Woensdag	38	5	6	0	3	485	4	Amsterdam	0	186	214	20	145	20	0	0	0
-22-9-2016	Donderdag	38	0	4	0	2	473	3	Amsterdam	0	173	276	10		0	40	0	0
-23-9-2016	Vrijdag	38	2	5	2	4	431	4	Heemstede, Vogelenzang, Aerdenhout	169	243	204	20		0	0	1	230
-24-9-2016	Zaterdag	38	1	4	1	4	620	5	Vogelenzang, Aerdenhout	0	216	28	8		0	10	1	180
-25-9-2016	Zondag	38	5	4	3	3	457	4		0	103	312	32		50	10	0	90
-26-9-2016	Maandag	39	8	5	4	2	353	2	Amsterdam	2	190							
+22-9-2016	Donderdag	38	0	4	0	2	473	3	Amsterdam	0	173	276	10	112	0	40	0	0
+23-9-2016	Vrijdag	38	2	5	2	4	431	4	Heemstede, Vogelenzang, Aerdenhout	169	243	204	20	65	0	0	1	230
+24-9-2016	Zaterdag	38	1	4	1	4	620	5	Vogelenzang, Aerdenhout	0	216	28	8	70	0	10	1	180
+25-9-2016	Zondag	38	5	4	3	3	457	4		0	103	312	32	147	50	10	0	90
+26-9-2016	Maandag	39	8	5	4	2	353	2	Amsterdam	2	190	310	5	130	30	0	0	0
+27-9-2016	Dinsdag	39	5	4	2	2	560	4		0	173	445	25	165	315	0	0	0
+28-9-2016	Woensdag	39	8	6	3	3	380	3	Amsterdam	0	192	270	15	110	270	0	0	0

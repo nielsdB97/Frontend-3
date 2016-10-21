@@ -1,0 +1,112 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family: Helvetica, 'Open Sans', sans-serif;
+}
+
+main {
+  padding: 0 1rem;
+}
+
+h1 {
+  margin-bottom: 0;
+  color: #333;
+}
+
+h2 {
+  margin-top: 0;
+
+  font-family: serif;
+  font-weight: 100;
+  font-style: italic;
+  color: #717171;
+}
+h2 a {
+  text-decoration: none;
+  color: #000;
+}
+
+.weekSelector {
+  width: 100%;
+  text-align: center;
+}
+
+.chart{
+	width: 1000px;
+	height: 500px;
+}
+
+/* Let op, color werkt hier niet want svg text */
+.chart .barLabels{
+	fill: white;
+	font: 10px sans-serif;
+	text-anchor: middle;
+}
+
+.axis text {
+  font: 14px sans-serif;
+	color: black;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.weekSelector .brush .extent {
+  stroke: #000;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+.weekSelector .axis--grid .domain {
+  fill: #ddd;
+  stroke: none;
+}
+
+.weekSelector .axis--x .domain,
+.weekSelector .axis--grid .tick line {
+  stroke: #fff;
+}
+
+.weekSelector .axis--grid .tick--minor line {
+  stroke-opacity: .5;
+}
+
+g.resize {
+  display: none;
+}
+
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+section.weekSelector {
+  display: flex;
+  flex-direction: row;
+}
+.weekSelector button {
+  width: 30px;
+  height: 50px;
+
+  background-color: hsl(200,100%,90%);
+  border: 1px solid hsl(200,100%,30%);
+  border-radius: 3px;
+
+  align-self: center;
+  font-size: 1.3rem;
+}
+
+@media screen and (min-width: 1000px) {
+  main {
+    width: 1000px;
+    margin: 0 auto;
+  }
+}

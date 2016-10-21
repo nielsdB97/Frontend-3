@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Alarm Clock';
+    src: url(alarm_clock.ttf);
+}
+
 html,
 body {
   margin: 0;
@@ -26,6 +31,22 @@ h2 {
 h2 a {
   text-decoration: none;
   color: #000;
+}
+
+.sleep-time-legend {
+  font-family: 'Alarm Clock', monospace;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.sleep-time {
+  font-family: 'Alarm Clock', monospace;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.brush .background {
+  cursor: pointer !important;
 }
 
 .weekSelector {
@@ -85,7 +106,7 @@ g.resize {
 .line {
   fill: none;
   stroke: steelblue;
-  stroke-width: 1.5px;
+  stroke-width: 3px;
 }
 
 section.weekSelector {

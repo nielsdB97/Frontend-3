@@ -3,7 +3,7 @@
 
 /* TODO
   Slaap HH:MM toevoegen
-  Emotie toevoegen
+  Emotie toevoegen (linechart)
   Filtering toevoegen van soorten minuten
 */
 
@@ -394,6 +394,9 @@ function draw(err, data) {
     );
 
     const days = barChartData.selectAll('.day').data(subset);
+
+    days.selectAll('rect').remove();
+
     days
       .enter()
       .append('g')
@@ -409,8 +412,6 @@ function draw(err, data) {
         .attr('y', (d) => y0(d[typesOfminutes[i]]))
         .attr('fill', (d) => (color(d.minutes[i].name)));
     }
-
-    days.exit().remove();
 
     // const line = d3.svg.line()
     //   // .x((d) => ( x2(dateFormatter(d.Datum, 'date'))))

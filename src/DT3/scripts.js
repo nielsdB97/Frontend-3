@@ -176,7 +176,7 @@ function draw(err, data) {
   x0.domain(data.map((d) => dateFormatter(d.Datum, 'weekday') ));
   x1.domain(typesOfminutes).rangeRoundBands([0, x0.rangeBand()]);
   x2
-    .domain([dateFormatter(firstDate, 'date'), dateFormatter(lastDate, 'date')])
+    .domain([dateFormatter(moment(firstDate).subtract(1, 'day'), 'date'), dateFormatter(lastDate, 'date')])
     .rangeRound([0, m.weekSelectorInnerWidth()]);
 
   y0.domain([0, maxMinutes]);
@@ -236,7 +236,7 @@ function draw(err, data) {
   */
   const legend = chart.append('g').attr('class', 'legend')
     .selectAll('.legend-item')
-      .data(typesOfminutes.slice())
+      .data(typesOfminutes.slice().reverse())
     .enter().append('g')
       .attr('class', 'legend-item')
       .attr('transform', (d, i) => ( `translate(-${i * (m.innerWidth() / typesOfminutes.length)}, -25)` ));
@@ -333,7 +333,7 @@ function draw(err, data) {
   const brush = d3.svg.brush();
   brush
     .x(x2)
-    .extent([dateFormatter(firstDate, 'date'), dateFormatter(lastDayFirstWeek(), 'date')])
+    .extent([dateFormatter(moment(firstDate).subtract(1, 'day'), 'date'), dateFormatter(lastDayFirstWeek(), 'date')])
     .on('brushend', brushended);
 
   weekSelectorGraphic.append('g')

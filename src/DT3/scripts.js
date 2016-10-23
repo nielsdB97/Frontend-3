@@ -112,7 +112,7 @@ function typesOfminutesExString(d) {
 /*
   Get the data and call functions to handle it
 */
-d3.tsv('../data/sample-data.tsv', type, draw);
+d3.tsv('../data/project-data.tsv', type, draw);
 
 
 /*

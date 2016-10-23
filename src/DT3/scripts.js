@@ -2,9 +2,6 @@
 // Anonimize by adding a block scope
 
 /* TODO
-  Filtering toevoegen van soorten minuten
-    in legend hover/click
-    behouden tijdens switchen week
   Animaties toevoegen
 */
 
@@ -73,20 +70,55 @@ const NL = d3.locale({
 });
 
 const tickFormat = NL.timeFormat.multi([
-    ['%H:%M', (d) => d.getMinutes() ],
-    ['%H:%M', (d) => d.getHours() ],
-    ['%a %d', (d) => d.getDay() && d.getDate() != 1 ],
-    ['%b %d', (d) => d.getDate() != 1 ],
-    ['%W', (d) => d.getWeek() ],
-    ['%B', (d) => d.getMonth() ],
-    ['%Y', (d) => true ]
+    ['%H:%M', d => d.getMinutes() ],
+    ['%H:%M', d => d.getHours() ],
+    ['%a %d', d => d.getDay() && d.getDate() != 1 ],
+    ['%b %d', d => d.getDate() != 1 ],
+    ['%W', d => d.getWeek() ],
+    ['%B', d => d.getMonth() ],
+    ['%Y', d => true ]
 ]);
 
 
 /*
-  Function declarations
+  Variable declarations
 */
-function dateFormatter(d, type) {
+let selectedWeek;
+const $weekSelectorGraphic = document.querySelector('svg.weekSelectorGraphic');
+const $prevWeek = document.querySelector('button.prevWeek');
+const $nextWeek = document.querySelector('button.nextWeek');
+let selectedType = null;
+
+const x0 = d3.scale.ordinal().rangeRoundBands([0, m.innerWidth()], 0);
+const x1 = d3.scale.ordinal();
+const x2 = d3.time.scale();
+const x3 = d3.time.scale();
+
+const y0 = d3.scale.linear()
+  .range([m.innerHeight(), 0]);
+const y1 = d3.scale.linear()
+  .range([(m.innerHeight() / 2), 0]);
+
+const color = d3.scale.ordinal()
+    .range(['hsl(200,100%,20%)', 'hsl(200,100%,50%)', 'hsl(200,100%,80%)', 'hsl(166, 58%, 46%)', 'hsl(100,60%,30%)',  'hsl(100,40%,50%)', 'hsl(100,70%,60%)']);
+
+const typesOfminutes = [
+  'Smartphone minuten',
+  'Computer minuten',
+  'Facebook minuten',
+  'Media minuten',
+  'Studie minuten',
+  'Sport minuten',
+  'Werk minuten'
+];
+
+let maxMinutes = 1;
+
+
+/*
+  Helper function declarations
+*/
+function dateHelper(d, type) {
   if (type == 'date') {
     return moment(d, 'DD-MM-YYYY')._d;
   } else if (type == 'string') {
@@ -110,61 +142,21 @@ function typesOfminutesExString(d) {
 
 
 /*
-  Get the data and call functions to handle it
-*/
-d3.tsv('../data/project-data.tsv', type, draw);
-
-
-/*
   Draw the svg's using the provided data
 */
 function draw(err, data) {
+
   // Error handling in case the data doesn't come through
   if (err) throw err;
+
 
   /*
     Variable declarations
   */
-  let selectedWeek;
-  const $weekSelectorGraphic = document.querySelector('svg.weekSelectorGraphic');
-  const $prevWeek = document.querySelector('button.prevWeek');
-  const $nextWeek = document.querySelector('button.nextWeek');
-  let selectedType = null;
+  const firstDate = moment.min( data.map( d => moment(d.Datum) ) );
+  const firstDateWeekSelector = moment(moment.min( data.map( d => moment(d.Datum) ) ) ).subtract(1, 'day');
+  const lastDate = moment.max( data.map( d => moment(d.Datum) ) );
 
-  const firstDate = moment.min( data.map( (d) => ( moment(d.Datum) ) ) );
-  const firstDateWeekSelector = moment(moment.min( data.map( (d) => ( moment(d.Datum) ) ) )).subtract(1, 'day');
-  const lastDate = moment.max( data.map( (d) => ( moment(d.Datum) ) ) );
-
-  const x0 = d3.scale.ordinal().rangeRoundBands([0, m.innerWidth()], 0);
-  const x1 = d3.scale.ordinal();
-  const x2 = d3.time.scale();
-  const x3 = d3.time.scale();
-
-  const y0 = d3.scale.linear()
-    .range([m.innerHeight(), 0]);
-  const y1 = d3.scale.linear()
-    .range([(m.innerHeight() / 2), 0]);
-
-  const color = d3.scale.ordinal()
-      .range(['hsl(200,100%,20%)', 'hsl(200,100%,50%)', 'hsl(200,100%,80%)', 'hsl(166, 58%, 46%)', 'hsl(100,60%,30%)',  'hsl(100,40%,50%)', 'hsl(100,70%,60%)']);
-
-  const typesOfminutes = [
-    'Smartphone minuten',
-    'Computer minuten',
-    'Facebook minuten',
-    'Media minuten',
-    'Studie minuten',
-    'Sport minuten',
-    'Werk minuten'
-  ];
-
-  let maxMinutes = 1;
-
-  const chart = d3.select('svg.chart')
-    .attr('width', m.width)
-    .attr('height', m.height)
-    .append('g')
-    .attr('transform', `translate(${m.margin.left},${m.margin.top})`);
 
   /*
     Function declarations that use variables within the scope of function draw
@@ -175,20 +167,19 @@ function draw(err, data) {
   };
 
   function minMaxWeek(button, week) {
-    if (button === 'prevWeek' && week <= d3.min( data.map( (d) => ( dateFormatter(d.Datum, 'week')) ) ) ) {
+    if (button === 'prevWeek' && week <= d3.min( data.map( d => dateHelper(d.Datum, 'week')) ) ) {
       return false;
-    } else if (button === 'nextWeek' && week >= d3.max( data.map( (d) => ( dateFormatter(d.Datum, 'week') ) ) )) {
+    } else if (button === 'nextWeek' && week >= d3.max( data.map( d => dateHelper(d.Datum, 'week') ) ) ) {
       return false;
     } else {
       return true;
     }
   }
 
+
   /*
     Setup
   */
-  selectedWeek = dateFormatter(firstDate, 'week');
-
   data.forEach((d, i) => {
     d.minutes = typesOfminutes.map((name) => ( { name, value: +d[name] } ));
     for (let j = 0; j < d.minutes.length; j++) {
@@ -202,18 +193,27 @@ function draw(err, data) {
     }
   });
 
+  selectedWeek = dateHelper(firstDate, 'week');
+
+  const chart = d3.select('svg.chart')
+    .attr('width', m.width)
+    .attr('height', m.height)
+    .append('g')
+    .attr('transform', `translate(${m.margin.left},${m.margin.top})`);
+
 
   /*
     X- and Y-Domain
   */
-  x0.domain(data.map((d) => dateFormatter(d.Datum, 'weekday') ));
+  x0.domain(data.map(d => dateHelper(d.Datum, 'weekday') ));
   x1.domain(typesOfminutes).rangeRoundBands([0, x0.rangeBand()]);
   x2
-    .domain([dateFormatter(firstDateWeekSelector, 'date'), dateFormatter(lastDate, 'date')])
+    .domain([dateHelper(firstDateWeekSelector, 'date'), dateHelper(lastDate, 'date')])
     .rangeRound([0, m.weekSelectorInnerWidth()]);
 
   y0.domain([0, maxMinutes]);
   y1.domain([1, 5]);
+
 
   /*
     X- and Y-Axis
@@ -231,37 +231,40 @@ function draw(err, data) {
       .orient('right')
       .ticks(5);
 
-  chart.append('g')
+  chart
+    .append('g')
       .attr('class', 'x axis')
       .attr('transform', `translate(0, ${m.innerHeight()})`)
       .call(xAxis)
     .selectAll('text')
       .attr('y', '1em');
 
-  chart.append('g')
+  chart
+    .append('g')
       .attr('class', 'y axis')
       .call(yAxis)
-      .append('text')
-        .attr('transform', 'rotate(-90)')
-        .attr('x', 0)
-        .attr('y', -45)
-        .style('text-anchor', 'end')
-        .text('minuten')
-      .selectAll('text')
-        .attr('x', '-1em');
+    .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('x', 0)
+      .attr('y', -45)
+      .style('text-anchor', 'end')
+      .text('minuten')
+    .selectAll('text')
+      .attr('x', '-1em');
 
-  chart.append('g')
+  chart
+    .append('g')
       .attr('class', 'y axis right')
       .attr('transform', `translate(${m.innerWidth()}, ${m.innerHeight() / 3})`)
       .call(yAxis1)
-      .append('text')
-        .attr('transform', 'rotate(-90)')
-        .attr('x', 20)
-        .attr('y', 35)
-        .style('text-anchor', 'end')
-        .text('gemoedstoestand')
-      .selectAll('text')
-        .attr('x', '1em');
+    .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('x', 20)
+      .attr('y', 35)
+      .style('text-anchor', 'end')
+      .text('gemoedstoestand')
+    .selectAll('text')
+      .attr('x', '1em');
 
 
   /*
@@ -273,29 +276,33 @@ function draw(err, data) {
 
   barChartData
     .append('text')
-    .attr('class', 'sleep-time-legend')
-    .attr('x', -55)
-    .attr('y', y0(-45))
-    .text('Slaap');
+      .attr('class', 'sleep-time-legend')
+      .attr('x', -55)
+      .attr('y', y0(-45))
+      .text('Slaap');
 
 
   /*
     Legend
   */
-  const legend = chart.append('g').attr('class', 'legend')
+  const legend = chart
+    .append('g')
+      .attr('class', 'legend')
     .selectAll('.legend-item')
       .data(typesOfminutes.slice().reverse())
     .enter().append('g')
       .attr('class', 'legend-item')
       .attr('transform', (d, i) => ( `translate(-${i * (m.innerWidth() / typesOfminutes.length)}, -25)` ));
 
-  legend.append('rect')
+  legend
+    .append('rect')
       .attr('x', m.innerWidth() - 18)
       .attr('width', 18)
       .attr('height', 18)
       .style('fill', color);
 
-  legend.append('text')
+  legend
+    .append('text')
       .attr('x', m.innerWidth() - 24)
       .attr('y', 9)
       .attr('dy', '.35em')
@@ -403,7 +410,7 @@ function draw(err, data) {
   const brush = d3.svg.brush();
   brush
     .x(x2)
-    .extent([dateFormatter(firstDateWeekSelector, 'date'), dateFormatter(lastDayFirstWeek(), 'date')])
+    .extent([dateHelper(firstDateWeekSelector, 'date'), dateHelper(lastDayFirstWeek(), 'date')])
     .on('brushend', brushended);
 
   weekSelectorGraphic.append('g')
@@ -441,14 +448,15 @@ function draw(err, data) {
       extent1[1] = d3.time.week.ceil(extent0[1]);
     }
 
-    if (dateFormatter(extent1[0], 'week') === dateFormatter(extent1[1], 'week') - 1) {
-      selectedWeek = dateFormatter(extent1[0], 'week') + 1;
+    if (dateHelper(extent1[0], 'week') === dateHelper(extent1[1], 'week') - 1) {
+      selectedWeek = dateHelper(extent1[0], 'week') + 1;
       update(data);
     } else {
       alert('You can only select ONE week at a time!');
-      d3.select(this).call(brush.extent([dateFormatter(firstDateWeekSelector, 'date'), dateFormatter(lastDayFirstWeek(), 'date')]));
+      d3.select(this).call(brush.extent([dateHelper(firstDateWeekSelector, 'date'), dateHelper(lastDayFirstWeek(), 'date')]));
       return false;
     }
+
     d3.select(this).transition()
       .call(brush.extent(extent1))
       .call(brush.event);
@@ -460,7 +468,7 @@ function draw(err, data) {
   */
   function update(data) {
     const subset = data.filter(
-      (d) => dateFormatter(d.Datum, 'week') === +selectedWeek
+      d => dateHelper(d.Datum, 'week') === +selectedWeek
     );
 
 
@@ -476,25 +484,25 @@ function draw(err, data) {
     days
       .enter()
       .append('g')
-        .attr('class', (d) => `day ${dateFormatter(d.Datum, 'dayOfWeek')} ${dateFormatter(d.Datum, 'weekday')}`)
-        .attr('transform', (d) => `translate(${x0(dateFormatter(d.Datum, 'weekday'))}, 0)` );
+        .attr('class', d => `day ${dateHelper(d.Datum, 'dayOfWeek')} ${dateHelper(d.Datum, 'weekday')}`)
+        .attr('transform', d => `translate(${x0(dateHelper(d.Datum, 'weekday'))}, 0)` );
 
     days
       .append('text')
       .attr('class', 'sleep-time')
       .attr('x', x0.rangeBand() / 2.5)
       .attr('y', y0(-45))
-      .text((d) => d.timeInHours.result);
+      .text(d => d.timeInHours.result);
 
     for (let i = 0; i < typesOfminutes.length; i++) {
       days
         .append('rect')
-        .attr('class', (d) => d.minutes[i].name)
+        .attr('class', d => d.minutes[i].name)
         .attr('width', x1.rangeBand())
-        .attr('height', (d) => (m.innerHeight() - y0(d[typesOfminutes[i]])))
-        .attr('x', (d) => x1(d.minutes[i].name))
-        .attr('y', (d) => y0(d[typesOfminutes[i]]))
-        .attr('fill', (d) => (color(d.minutes[i].name)));
+        .attr('height', d => m.innerHeight() - y0(d[typesOfminutes[i]]) )
+        .attr('x', d => x1(d.minutes[i].name) )
+        .attr('y', d => y0(d[typesOfminutes[i]]) )
+        .attr('fill', d => color(d.minutes[i].name) );
     }
 
 
@@ -508,15 +516,17 @@ function draw(err, data) {
 
     // Draw line
     const line = d3.svg.line()
-      // .x((d) => x3(dateFormatter(d.Datum, 'date')))
-      .x((d) => x3(dateFormatter(d.Datum, 'date')) + 40 )
-      .y((d) => y1(d.Blijheid) );
+      // .x(d => x3(dateHelper(d.Datum, 'date')))
+      .x(d => x3(dateHelper(d.Datum, 'date')) + 40 )
+      .y(d => y1(d.Blijheid) );
 
     const linegraph = lineChartData.selectAll("path").data([subset]);
-    linegraph.enter().append('path')
-      .attr('transform', `translate(0, ${m.innerHeight() / 3})`)
-      .attr("class", "line")
-      .attr("d", line);
+    linegraph.enter()
+      .append('path')
+        .attr('transform', `translate(0, ${m.innerHeight() / 3})`)
+        .attr("class", "line")
+        .attr("d", line);
+
 
     /*
       Filtering
@@ -581,7 +591,7 @@ function draw(err, data) {
 
       });
 
-      // On week switch
+      // Persist on week switch
       if ($bars[i].classList.contains(selectedType)) {
         console.log('ok');
         $bars[i].classList.add('perm-highlighted');
@@ -632,3 +642,9 @@ function type(d) {
 }
 
 }
+
+
+/*
+  Get the data and call functions to handle it
+*/
+d3.tsv('../data/project-data.tsv', type, draw);

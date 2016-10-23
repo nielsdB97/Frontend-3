@@ -2,8 +2,9 @@
 // Anonimize by adding a block scope
 
 /* TODO
-  Emotie toevoegen (linechart)
   Filtering toevoegen van soorten minuten
+    in legend hover/click
+    behouden tijdens switchen week
   Animaties toevoegen
 */
 
@@ -49,8 +50,10 @@ const m = {
 /*
   Set locale to the Netherlands
 */
+// moment.js locale
 moment.locale('nl');
 
+// d3 locale
 const NL = d3.locale({
     'decimal': ',',
     'thousands': '.',
@@ -70,15 +73,19 @@ const NL = d3.locale({
 });
 
 const tickFormat = NL.timeFormat.multi([
-    ['%H:%M', function(d) { return d.getMinutes(); }],
-    ['%H:%M', function(d) { return d.getHours(); }],
-    ['%a %d', function(d) { return d.getDay() && d.getDate() != 1; }],
-    ['%b %d', function(d) { return d.getDate() != 1; }],
-    ['%W', function(d) { return d.getWeek(); }],
-    ['%B', function(d) { return d.getMonth(); }],
-    ['%Y', function() { return true; }]
+    ['%H:%M', (d) => d.getMinutes() ],
+    ['%H:%M', (d) => d.getHours() ],
+    ['%a %d', (d) => d.getDay() && d.getDate() != 1 ],
+    ['%b %d', (d) => d.getDate() != 1 ],
+    ['%W', (d) => d.getWeek() ],
+    ['%B', (d) => d.getMonth() ],
+    ['%Y', (d) => true ]
 ]);
 
+
+/*
+  Function declarations
+*/
 function dateFormatter(d, type) {
   if (type == 'date') {
     return moment(d, 'DD-MM-YYYY')._d;
@@ -96,28 +103,28 @@ function dateFormatter(d, type) {
 }
 
 function typesOfminutesExString(d) {
-  // Subtract the word 'minuten'
+  // Only return the first word of input string, mainly used for subtracting the word 'minuten'
   const kind = d.split(' ').shift();
   return kind;
 }
 
 
-
 /*
   Get the data and call functions to handle it
 */
-
 d3.tsv('../data/sample-data.tsv', type, draw);
+
 
 /*
   Draw the svg's using the provided data
 */
-
 function draw(err, data) {
   // Error handling in case the data doesn't come through
   if (err) throw err;
 
-  // Declare variables
+  /*
+    Variable declarations
+  */
   let selectedWeek;
   const $weekSelectorGraphic = document.querySelector('svg.weekSelectorGraphic');
   const $prevWeek = document.querySelector('button.prevWeek');
@@ -126,11 +133,6 @@ function draw(err, data) {
   const firstDate = moment.min( data.map( (d) => ( moment(d.Datum) ) ) );
   const firstDateWeekSelector = moment(moment.min( data.map( (d) => ( moment(d.Datum) ) ) )).subtract(1, 'day');
   const lastDate = moment.max( data.map( (d) => ( moment(d.Datum) ) ) );
-
-  function lastDayFirstWeek() {
-    const lastDayFirstWeek = moment(firstDate).add(6, 'd');
-    return lastDayFirstWeek;
-  };
 
   const x0 = d3.scale.ordinal().rangeRoundBands([0, m.innerWidth()], 0);
   const x1 = d3.scale.ordinal();
@@ -145,9 +147,7 @@ function draw(err, data) {
   const color = d3.scale.ordinal()
       .range(['hsl(200,100%,20%)', 'hsl(200,100%,50%)', 'hsl(200,100%,80%)', 'hsl(166, 58%, 46%)', 'hsl(100,60%,30%)',  'hsl(100,40%,50%)', 'hsl(100,70%,60%)']);
 
-  selectedWeek = dateFormatter(firstDate, 'week');
-
-  typesOfminutes = [
+  const typesOfminutes = [
     'Smartphone minuten',
     'Computer minuten',
     'Facebook minuten',
@@ -158,6 +158,35 @@ function draw(err, data) {
   ];
 
   let maxMinutes = 1;
+
+  const chart = d3.select('svg.chart')
+    .attr('width', m.width)
+    .attr('height', m.height)
+    .append('g')
+    .attr('transform', `translate(${m.margin.left},${m.margin.top})`);
+
+  /*
+    Function declarations that use variables within the scope of function draw
+  */
+  function lastDayFirstWeek() {
+    const lastDayFirstWeek = moment(firstDate).add(6, 'd');
+    return lastDayFirstWeek;
+  };
+
+  function minMaxWeek(button, week) {
+    if (button === 'prevWeek' && week <= d3.min( data.map( (d) => ( dateFormatter(d.Datum, 'week')) ) ) ) {
+      return false;
+    } else if (button === 'nextWeek' && week >= d3.max( data.map( (d) => ( dateFormatter(d.Datum, 'week') ) ) )) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  /*
+    Setup
+  */
+  selectedWeek = dateFormatter(firstDate, 'week');
 
   data.forEach((d, i) => {
     d.minutes = typesOfminutes.map((name) => ( { name, value: +d[name] } ));
@@ -172,11 +201,6 @@ function draw(err, data) {
     }
   });
 
-  const chart = d3.select('svg.chart')
-    .attr('width', m.width)
-    .attr('height', m.height)
-    .append('g')
-    .attr('transform', `translate(${m.margin.left},${m.margin.top})`);
 
   /*
     X- and Y-Domain
@@ -238,6 +262,7 @@ function draw(err, data) {
       .selectAll('text')
         .attr('x', '1em');
 
+
   /*
     SVG group in chart holding the data bars
   */
@@ -251,6 +276,7 @@ function draw(err, data) {
     .attr('x', -55)
     .attr('y', y0(-45))
     .text('Slaap');
+
 
   /*
     Legend
@@ -275,10 +301,12 @@ function draw(err, data) {
       .style('text-anchor', 'end')
       .text(d => typesOfminutesExString(d));
 
+
   /*
     Call update
   */
   update(data);
+
 
   /*
     Week switching buttons
@@ -347,15 +375,6 @@ function draw(err, data) {
     }
   } });
 
-  function minMaxWeek(button, week) {
-    if (button === 'prevWeek' && week <= d3.min( data.map( (d) => ( dateFormatter(d.Datum, 'week')) ) ) ) {
-      return false;
-    } else if (button === 'nextWeek' && week >= d3.max( data.map( (d) => ( dateFormatter(d.Datum, 'week') ) ) )) {
-      return false;
-    } else {
-      return true;
-    }
-  }
 
   /*
     Graphical week selector
@@ -436,12 +455,76 @@ function draw(err, data) {
 
 
   /*
+    Filtering
+  */
+  const $bars = document.querySelectorAll('.day rect');
+
+  for (let i = 0; i < $bars.length; i++) {
+
+    $bars[i].addEventListener('mouseover', (event) => {
+      const targetName = event.target.classList;
+      const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
+
+      if (!targetName.contains('perm')) {
+        targetName.add('highlighted');
+
+        for (let i = 0; i < $target.length; i++) {
+          $target[i].classList.add('not-highlighted');
+        }
+      }
+    });
+
+    $bars[i].addEventListener('mouseout', (event) => {
+      const targetName = event.target.classList;
+      const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
+
+      targetName.remove('highlighted');
+
+      for (let i = 0; i < $target.length; i++) {
+        $target[i].classList.remove('not-highlighted');
+      }
+    });
+
+    $bars[i].addEventListener('click', (event) => {
+      const targetName = event.target.classList;
+      const $targetType = document.querySelectorAll(`.day rect.${targetName[0]}`);
+      const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
+
+      if (!targetName.contains('perm')) {
+        if (targetName.contains('perm-highlighted')) {
+          const removeClass = document.querySelectorAll('.day rect');
+
+          for (var i = 0; i < $targetType.length; i++) {
+            $targetType[i].classList.remove('perm-highlighted');
+          }
+
+          for (var i = 0; i < removeClass.length; i++) {
+            removeClass[i].classList.remove('perm');
+          }
+        } else {
+          for (var i = 0; i < $targetType.length; i++) {
+            $targetType[i].classList.add('perm-highlighted');
+          }
+
+          for (let i = 0; i < $target.length; i++) {
+            $target[i].classList.add('perm');
+          }
+        }
+      }
+
+    });
+
+  }
+
+
+  /*
     Update function
   */
   function update(data) {
     const subset = data.filter(
       (d) => dateFormatter(d.Datum, 'week') === +selectedWeek
     );
+
 
     /*
       Barchart for time consumption
@@ -468,13 +551,13 @@ function draw(err, data) {
     for (let i = 0; i < typesOfminutes.length; i++) {
       days
         .append('rect')
+        .attr('class', (d) => d.minutes[i].name)
         .attr('width', x1.rangeBand())
         .attr('height', (d) => (m.innerHeight() - y0(d[typesOfminutes[i]])))
         .attr('x', (d) => x1(d.minutes[i].name))
         .attr('y', (d) => y0(d[typesOfminutes[i]]))
         .attr('fill', (d) => (color(d.minutes[i].name)));
     }
-
 
 
     /*
@@ -490,7 +573,6 @@ function draw(err, data) {
       // .x((d) => x3(dateFormatter(d.Datum, 'date')))
       .x((d) => x3(dateFormatter(d.Datum, 'date')) + 40 )
       .y((d) => y1(d.Blijheid) );
-
 
     const linegraph = lineChartData.selectAll("path").data([subset]);
     linegraph.enter().append('path')

@@ -32,9 +32,9 @@ const m = {
   },
   weekSelectorMargin: {
     top: 20,
-    right: 20,
+    right: 25,
     bottom: 35,
-    left: 20
+    left: 25
   },
   weekSelectorHeight: 150,
   weekSelectorInnerWidth: function() {
@@ -129,6 +129,7 @@ function draw(err, data) {
   const $weekSelectorGraphic = document.querySelector('svg.weekSelectorGraphic');
   const $prevWeek = document.querySelector('button.prevWeek');
   const $nextWeek = document.querySelector('button.nextWeek');
+  let selectedType = null;
 
   const firstDate = moment.min( data.map( (d) => ( moment(d.Datum) ) ) );
   const firstDateWeekSelector = moment(moment.min( data.map( (d) => ( moment(d.Datum) ) ) )).subtract(1, 'day');
@@ -455,69 +456,6 @@ function draw(err, data) {
 
 
   /*
-    Filtering
-  */
-  const $bars = document.querySelectorAll('.day rect');
-
-  for (let i = 0; i < $bars.length; i++) {
-
-    $bars[i].addEventListener('mouseover', (event) => {
-      const targetName = event.target.classList;
-      const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
-
-      if (!targetName.contains('perm')) {
-        targetName.add('highlighted');
-
-        for (let i = 0; i < $target.length; i++) {
-          $target[i].classList.add('not-highlighted');
-        }
-      }
-    });
-
-    $bars[i].addEventListener('mouseout', (event) => {
-      const targetName = event.target.classList;
-      const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
-
-      targetName.remove('highlighted');
-
-      for (let i = 0; i < $target.length; i++) {
-        $target[i].classList.remove('not-highlighted');
-      }
-    });
-
-    $bars[i].addEventListener('click', (event) => {
-      const targetName = event.target.classList;
-      const $targetType = document.querySelectorAll(`.day rect.${targetName[0]}`);
-      const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
-
-      if (!targetName.contains('perm')) {
-        if (targetName.contains('perm-highlighted')) {
-          const removeClass = document.querySelectorAll('.day rect');
-
-          for (var i = 0; i < $targetType.length; i++) {
-            $targetType[i].classList.remove('perm-highlighted');
-          }
-
-          for (var i = 0; i < removeClass.length; i++) {
-            removeClass[i].classList.remove('perm');
-          }
-        } else {
-          for (var i = 0; i < $targetType.length; i++) {
-            $targetType[i].classList.add('perm-highlighted');
-          }
-
-          for (let i = 0; i < $target.length; i++) {
-            $target[i].classList.add('perm');
-          }
-        }
-      }
-
-    });
-
-  }
-
-
-  /*
     Update function
   */
   function update(data) {
@@ -579,6 +517,82 @@ function draw(err, data) {
       .attr('transform', `translate(0, ${m.innerHeight() / 3})`)
       .attr("class", "line")
       .attr("d", line);
+
+    /*
+      Filtering
+    */
+    const $bars = document.querySelectorAll('.day rect');
+
+    for (let i = 0; i < $bars.length; i++) {
+
+      $bars[i].addEventListener('mouseover', (event) => {
+        const targetName = event.target.classList;
+        const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
+
+        if (!targetName.contains('perm')) {
+          targetName.add('highlighted');
+
+          for (let i = 0; i < $target.length; i++) {
+            $target[i].classList.add('not-highlighted');
+          }
+        }
+      });
+
+      $bars[i].addEventListener('mouseout', (event) => {
+        const targetName = event.target.classList;
+        const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
+
+        targetName.remove('highlighted');
+
+        for (let i = 0; i < $target.length; i++) {
+          $target[i].classList.remove('not-highlighted');
+        }
+      });
+
+      $bars[i].addEventListener('click', (event) => {
+        const targetName = event.target.classList;
+        const $targetType = document.querySelectorAll(`.day rect.${targetName[0]}`);
+        const $target = document.querySelectorAll(`.day rect:not(.${targetName[0]})`);
+
+        if (!targetName.contains('perm')) {
+          if (targetName.contains('perm-highlighted')) {
+            selectedType = null;
+            const removeClass = document.querySelectorAll('.day rect');
+
+            for (let i = 0; i < $targetType.length; i++) {
+              $targetType[i].classList.remove('perm-highlighted');
+            }
+
+            for (let i = 0; i < removeClass.length; i++) {
+              removeClass[i].classList.remove('perm');
+            }
+          } else {
+            selectedType = targetName[0];
+
+            for (let i = 0; i < $targetType.length; i++) {
+              $targetType[i].classList.add('perm-highlighted');
+            }
+
+            for (let i = 0; i < $target.length; i++) {
+              $target[i].classList.add('perm');
+            }
+          }
+        }
+
+      });
+
+      // On week switch
+      if ($bars[i].classList.contains(selectedType)) {
+        console.log('ok');
+        $bars[i].classList.add('perm-highlighted');
+
+        const $target = document.querySelectorAll(`.day rect:not(.${selectedType})`);
+        for (let i = 0; i < $target.length; i++) {
+          $target[i].classList.add('perm');
+        }
+      }
+
+    }
   }
 }
 

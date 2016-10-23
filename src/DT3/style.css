@@ -113,6 +113,10 @@ g.resize {
   opacity: 0.6;
 }
 
+.perm-highlighted {
+  stroke: #000;
+}
+
 .not-highlighted,
 .perm {
   opacity: 0.2;

@@ -109,6 +109,15 @@ g.resize {
   stroke-width: 3px;
 }
 
+.bar-highlighted {
+  opacity: 0.6;
+}
+
+.not-highlighted,
+.perm {
+  opacity: 0.2;
+}
+
 section.weekSelector {
   display: flex;
   flex-direction: row;
